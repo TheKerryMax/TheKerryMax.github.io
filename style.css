@@ -7,28 +7,43 @@ body {
   padding-top: 120px;
 }
 
-h1 {
-  font-size: 64px;
-  margin-bottom: 10px;
-}
-
-h2 {
-  font-size: 28px;
-  color: #9ffcff;
-  margin-top: 10px;
-}
-
-p {
-  font-size: 18px;
-  color: #c9fefe;
-}
-
+/* Main container */
 .container {
   max-width: 1000px;
   margin: auto;
   padding: 20px;
 }
 
+/* Main title */
+h1 {
+  font-size: 52px;
+  margin-bottom: 8px;
+}
+
+/* Subtitle */
+h2 {
+  font-size: 28px;
+  color: #9ffcff;
+  margin-top: 10px;
+}
+
+/* Paragraph text */
+p {
+  font-size: 18px;
+  color: #c9fefe;
+  line-height: 1.7;
+}
+
+/* Divider under title */
+.divider {
+  width: 80px;
+  height: 4px;
+  background-color: #00ffff;
+  margin: 20px auto;
+  border-radius: 10px;
+}
+
+/* Profile image */
 img {
   width: 280px;
   margin-top: 30px;
