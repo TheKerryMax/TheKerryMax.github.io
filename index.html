@@ -54,6 +54,7 @@
             text-shadow: 0 0 10px var(--primary-glow);
         }
 
+        /* Desktop Nav */
         nav a {
             margin-left: 25px;
             color: var(--text-main);
@@ -66,6 +67,57 @@
         }
 
         nav a:hover { color: var(--primary); text-shadow: 0 0 8px var(--primary-glow); }
+
+        /* Menu Toggle (Hidden on Desktop) */
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 1001;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 2px;
+            background: var(--primary);
+            margin: 5px 0;
+            transition: var(--transition);
+        }
+
+        /* Mobile specific overrides inside internal style */
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%; /* Hidden by default */
+                width: 70%;
+                height: 100vh;
+                background: rgba(5, 8, 16, 0.95);
+                backdrop-filter: blur(20px);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: 0.4s ease-in-out;
+                border-left: 1px solid rgba(0, 255, 240, 0.2);
+            }
+
+            nav.active { right: 0; }
+
+            nav a {
+                margin: 20px 0;
+                font-size: 1.2rem;
+            }
+
+            /* Hamburger Animation */
+            .menu-toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+            .menu-toggle.active span:nth-child(2) { opacity: 0; }
+            .menu-toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        }
 
         /* ===== Hero Section ===== */
         .hero {
@@ -202,7 +254,14 @@
 
 <header>
     <h1>THE KERRY MAX</h1>
-    <nav>
+    
+    <button class="menu-toggle" id="mobile-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <nav id="nav-menu">
         <a href="#skills">Skills</a>
         <a href="#projects">Projects</a>
         <a href="#contact">Contact</a>
@@ -284,33 +343,59 @@
 </footer>
 
 <script>
-    /* --- Advanced Geometric Particles (Clean Version) --- */
+    /* --- Mobile Menu Logic --- */
+    const mobileMenuBtn = document.getElementById('mobile-menu');
+    const navMenu = document.getElementById('nav-menu');
+    const navLinks = document.querySelectorAll('nav a');
+
+    mobileMenuBtn.addEventListener('click', () => {
+        mobileMenuBtn.classList.toggle('active');
+        navMenu.classList.toggle('active');
+    });
+
+    // Close menu when a link is clicked
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            mobileMenuBtn.classList.remove('active');
+            navMenu.classList.remove('active');
+        });
+    });
+
+    /* --- Ultra-Smooth Floating Particles --- */
     const canvas = document.getElementById('particle-background');
     const ctx = canvas.getContext('2d');
     let particles = [];
-    const mouse = { x: null, y: null, radius: 150 };
+    const mouse = { x: null, y: null, radius: 120 };
 
-    window.addEventListener('mousemove', (e) => {
-        mouse.x = e.x;
-        mouse.y = e.y;
-    });
+    const updateCoords = (e) => {
+        const pos = e.touches ? e.touches[0] : e;
+        mouse.x = pos.clientX;
+        mouse.y = pos.clientY;
+    };
+
+    window.addEventListener('mousemove', updateCoords);
+    window.addEventListener('touchstart', updateCoords);
+    window.addEventListener('touchmove', (e) => { updateCoords(e); }, { passive: true });
+    window.addEventListener('touchend', () => { mouse.x = null; mouse.y = null; });
 
     class Particle {
         constructor() { this.init(); }
         init() {
             this.x = Math.random() * canvas.width;
             this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 10 + 4; 
-            this.baseX = this.x;
-            this.baseY = this.y;
-            this.density = (Math.random() * 25) + 5;
+            // INCREASED SIZE: Now 6 to 12 range (was 2 to 8)
+            this.size = Math.random() * 6 + 6; 
+            this.vx = (Math.random() - 0.5) * 0.3; 
+            this.vy = (Math.random() - 0.5) * 0.3; 
+            this.friction = 0.95;
+            this.density = (Math.random() * 15) + 2;
             this.shapeType = Math.floor(Math.random() * 3); 
             this.rotation = Math.random() * Math.PI * 2;
-            this.spin = Math.random() * 0.02;
+            this.spin = (Math.random() - 0.5) * 0.005;
         }
         draw() {
-            ctx.fillStyle = 'rgba(0, 255, 240, 0.2)';
-            ctx.strokeStyle = 'rgba(0, 255, 240, 0.5)';
+            ctx.fillStyle = 'rgba(0, 255, 240, 0.12)';
+            ctx.strokeStyle = 'rgba(0, 255, 240, 0.3)';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.save();
@@ -328,18 +413,26 @@
         }
         update() {
             this.rotation += this.spin;
-            let dx = mouse.x - this.x;
-            let dy = mouse.y - this.y;
-            let distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < mouse.radius) {
-                let force = (mouse.radius - distance) / mouse.radius;
-                let dirX = (dx / distance) * force * this.density;
-                let dirY = (dy / distance) * force * this.density;
-                this.x -= dirX; this.y -= dirY;
-            } else {
-                if (this.x !== this.baseX) this.x -= (this.x - this.baseX) * 0.05;
-                if (this.y !== this.baseY) this.y -= (this.y - this.baseY) * 0.05;
+            if (mouse.x !== null) {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < mouse.radius) {
+                    let force = (mouse.radius - distance) / mouse.radius;
+                    let dirX = (dx / distance) * force * this.density;
+                    let dirY = (dy / distance) * force * this.density;
+                    this.vx -= dirX * 0.02;
+                    this.vy -= dirY * 0.02;
+                }
             }
+            this.vx *= this.friction;
+            this.vy *= this.friction;
+            this.x += this.vx + (this.vx > 0 ? 0.1 : -0.1);
+            this.y += this.vy + (this.vy > 0 ? 0.1 : -0.1);
+            if (this.x < -20) this.x = canvas.width + 20;
+            if (this.x > canvas.width + 20) this.x = -20;
+            if (this.y < -20) this.y = canvas.height + 20;
+            if (this.y > canvas.height + 20) this.y = -20;
         }
     }
 
@@ -347,7 +440,8 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         particles = [];
-        for (let i = 0; i < 120; i++) { particles.push(new Particle()); }
+        let count = (window.innerWidth < 768) ? 40 : 100;
+        for (let i = 0; i < count; i++) { particles.push(new Particle()); }
     }
 
     function animate() {
@@ -359,7 +453,6 @@
     init(); animate();
     window.addEventListener('resize', init);
 
-    /* --- Scroll Reveal --- */
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) entry.target.classList.add('visible');
