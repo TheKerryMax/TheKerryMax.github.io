@@ -1,89 +1,96 @@
-/* Mobile Styles for The Kerry Max Portfolio */
+/* ==========================================
+   MOBILE OPTIMIZATION - THE KERRY MAX
+   ========================================== */
+
 @media (max-width: 768px) {
     
-    /* Navigation: Stack the logo and links */
+    /* 1. Header Layout: Logo Left, Toggle Right */
     header {
-        flex-direction: column;
-        padding: 1rem;
-        gap: 12px;
-        text-align: center;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 6%;
+        height: 70px;
     }
 
     header h1 {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
         letter-spacing: 1px;
+        z-index: 1002;
     }
 
+    /* 2. Toggle Button Visibility */
+    .menu-toggle {
+        display: block;
+    }
+
+    /* 3. Mobile Navigation Menu (Slide-out) */
     nav {
+        position: fixed;
+        top: 0;
+        right: -100%; /* Hidden */
+        width: 80%;
+        height: 100vh;
+        background: rgba(5, 8, 16, 0.98);
+        backdrop-filter: blur(25px);
         display: flex;
+        flex-direction: column;
         justify-content: center;
-        flex-wrap: wrap;
-        gap: 15px;
+        align-items: center;
+        transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+        border-left: 1px solid rgba(0, 255, 240, 0.2);
+        z-index: 1000;
     }
 
+    nav.active {
+        right: 0;
+    }
+
+    /* Staggered Fade-in Animation for Links */
     nav a {
-        margin: 0;
-        font-size: 0.75rem;
+        margin: 1.5rem 0;
+        font-size: 1.4rem;
+        font-family: 'Orbitron', sans-serif;
+        letter-spacing: 3px;
+        transform: translateX(50px);
+        opacity: 0;
+        transition: 0.4s ease;
+        transition-delay: calc(0.1s * var(--i)); /* Uses the inline --i variable */
     }
 
-    /* Hero Section: Adjust spacing and text sizes */
-    .hero {
-        padding: 0 15px;
+    nav.active a {
+        transform: translateX(0);
+        opacity: 1;
     }
 
+    /* 4. Hamburger Animation */
+    .menu-toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-toggle.active span:nth-child(2) { opacity: 0; }
+    .menu-toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* 5. Mobile Content Scale */
     .hero-content {
-        padding: 2.5rem 1.2rem;
-        border-radius: 20px;
-        width: 100%;
+        padding: 2.5rem 1.5rem;
+        width: 90%;
     }
 
-    .hero h2 {
-        font-size: 1.8rem;
-        margin-bottom: 0.8rem;
-    }
+    .hero h2 { font-size: 1.6rem; }
 
-    .hero p {
-        font-size: 0.95rem;
-        line-height: 1.4;
-    }
-
-    .cta {
-        padding: 14px 30px;
-        font-size: 0.8rem;
-        width: 80%; /* Makes the button easier to tap */
-    }
-
-    /* Sections: Reduce padding to save vertical space */
-    section {
-        padding: 60px 20px;
-    }
-
-    .section-title {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    /* Cards: Ensure they take up more width on small screens */
     .grid {
-        grid-template-columns: 1fr; /* Force single column on very small devices */
+        grid-template-columns: 1fr;
         gap: 20px;
     }
 
-    .card {
-        padding: 30px 20px;
+    section {
+        padding: 60px 8%;
     }
+}
 
-    /* Footer: Center everything and adjust icons */
-    footer {
-        padding: 40px 20px 20px;
-    }
-
-    .footer-icons a {
-        width: 45px;
-        height: 45px;
-    }
-
-    .footer-icons svg {
-        width: 18px;
+/* ==========================================
+   DESKTOP CONSISTENCY
+   ========================================== */
+@media (min-width: 769px) {
+    .menu-toggle {
+        display: none !important;
     }
 }
